@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getCollabs, getFilteredCollabs } from '../controllers/homeController.js';
+import { getCollabs, getFilteredCollabs } from '../controllers/collabController.js';
 
 const router = Router();
 

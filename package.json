@@ -8,6 +8,7 @@
     "cors": "^2.8.5",
     "dotenv": "^17.0.0",
     "express": "^5.1.0",
+    "helmet": "^8.1.0",
     "pg": "^8.16.3"
   },
   "devDependencies": {
@@ -15,6 +16,9 @@
   },
   "scripts": {
     "dev": "nodemon index.js",
-     "debug": "nodemon --inspect index.js"
+    "debug": "nodemon --inspect index.js",
+    "start": "node index.js",
+    "build": "echo \"No build step defined\"",
+    "lint": "echo \"No linter configured\""
   }
 }

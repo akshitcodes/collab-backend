@@ -18,8 +18,8 @@ app.use(helmet());
 
 // Enable CORS with default or custom options
 app.use(cors(
-    {   origin:'http://localhost:3000', // Change this to your frontend URL
-        // origin: process.env.CORS_ORIGIN || '*', // Allow 
+    {    // Change this to your frontend URL
+        origin: process.env.CORS_ORIGIN || '*', // Allow 
         credentials: true, // Allow cookies to be sent with requests
     }
 ));

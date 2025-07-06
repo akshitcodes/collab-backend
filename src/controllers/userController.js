@@ -68,10 +68,11 @@ export const loginUser = async (req, res) => {
             return res.status(500).json({ error: 'Failed to generate tokens' });
         }
         const options = {
-            httpOnly: true,
-            secure: true, // Use secure cookies in production
-            sameSite: "None",
+            // httpOnly: true,
+            // secure: true, // Use secure cookies in production
+            // sameSite: "None",
         };
+        
         return res.status(200).cookie('accessToken', accessToken
         ).cookie('refreshToken', refreshToken, options).json({ message: 'Login successful', user });
     } catch (error) {

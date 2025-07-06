@@ -4,6 +4,7 @@ export const home = (req, res) => {
   res.send('Welcome to collabLearn backend');
 };
 export const createCollab = async (req, res) => {
+  console.time('createCollab');
   const {
     type,
     title,
@@ -31,8 +32,9 @@ export const createCollab = async (req, res) => {
   ) {
     return res.status(400).json({ error: 'type, title, and skills (non-empty array of strings) are required.' });
   }
-
+ console.timeLog('createCollab', 'Validation took %dms');
   try {
+    await pool.query('BEGIN');
     const insertQuery = `
       INSERT INTO collab (
         type, title, description, skills, interests, difficulty, duration, creator, tags, meeting_frequency, timezone, max_members, members, is_public, rating,creator_id
@@ -59,14 +61,31 @@ export const createCollab = async (req, res) => {
       rating || null,
       creator_id // Assuming creator_id is the ID of the user creating the collab
     ];
-
+    
+ console.timeLog('createCollab', 'Preparing insert query took %dms');
     const result = await pool.query(insertQuery, values);
+    console.timeLog('createCollab', 'Database queries took %dms');
+    const newCollabId = result.rows[0].id;
+
+const membershipResult = await pool.query(
+  `INSERT INTO collab_memberships (user_id, collab_id, role) VALUES ($1, $2, 'owner')`,
+  [creator_id, newCollabId]
+);
+console.timeLog('createCollab', 'Membership creation took %dms');
+    if (membershipResult.rowCount === 0) {
+      return res.status(500).json({ error: 'Failed to create membership for the creator.' });
+    }
+     await pool.query('COMMIT');
+    console.timeEnd('createCollab');
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Database error:', error);
+      await pool.query('ROLLBACK');
     res.status(500).json({ error: 'Database error' });
   }
 }
+
+
 export const getCollabs = async (req, res) => {
   // Pagination parameters
   const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;

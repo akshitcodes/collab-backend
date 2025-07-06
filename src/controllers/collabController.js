@@ -21,7 +21,7 @@ export const createCollab = async (req, res) => {
     is_public,
     rating
   } = req.body;
-
+  console.log('Creating collab with data:', req.body);  
   const creator_id = req.user?.id; // Assuming req.user is set by authentication middleware
   // Basic validation
   if (

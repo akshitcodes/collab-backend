@@ -22,6 +22,7 @@ export const createCollab = async (req, res) => {
     rating
   } = req.body;
 
+  const creator_id = req.user?.id; // Assuming req.user is set by authentication middleware
   // Basic validation
   if (
     !type || typeof type !== 'string' || !type.trim() ||
@@ -34,12 +35,13 @@ export const createCollab = async (req, res) => {
   try {
     const insertQuery = `
       INSERT INTO collab (
-        type, title, description, skills, interests, difficulty, duration, creator, tags, meeting_frequency, timezone, max_members, members, is_public, rating
+        type, title, description, skills, interests, difficulty, duration, creator, tags, meeting_frequency, timezone, max_members, members, is_public, rating, creator_id, created_at, updated_at
       ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18
       )
       RETURNING *
     `;
+    const now = new Date();
     const values = [
       type.trim(),
       title.trim(),
@@ -55,7 +57,10 @@ export const createCollab = async (req, res) => {
       max_members || null,
       members || null,
       is_public !== undefined ? is_public : null,
-      rating || null
+      rating || null,
+      creator_id, // Assuming creator_id is the ID of the user creating the collab
+      now,        // created_at
+      now         // updated_at
     ];
 
     const result = await pool.query(insertQuery, values);

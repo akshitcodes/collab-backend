@@ -3,7 +3,68 @@ import { pool, query } from "../DB/db.js";
 export const home = (req, res) => {
   res.send('Welcome to collabLearn backend');
 };
+export const createCollab = async (req, res) => {
+  const {
+    type,
+    title,
+    description,
+    skills,
+    interests,
+    difficulty,
+    duration,
+    creator,
+    tags,
+    meeting_frequency,
+    timezone,
+    max_members,
+    members,
+    is_public,
+    rating
+  } = req.body;
 
+  // Basic validation
+  if (
+    !type || typeof type !== 'string' || !type.trim() ||
+    !title || typeof title !== 'string' || !title.trim() ||
+    !Array.isArray(skills) || skills.length === 0 || skills.some(s => typeof s !== 'string' || !s.trim())
+  ) {
+    return res.status(400).json({ error: 'type, title, and skills (non-empty array of strings) are required.' });
+  }
+
+  try {
+    const insertQuery = `
+      INSERT INTO collab (
+        type, title, description, skills, interests, difficulty, duration, creator, tags, meeting_frequency, timezone, max_members, members, is_public, rating
+      ) VALUES (
+        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15
+      )
+      RETURNING *
+    `;
+    const values = [
+      type.trim(),
+      title.trim(),
+      description || null,
+      skills.map(s => s.trim()),
+      Array.isArray(interests) ? interests.map(i => i.trim()) : null,
+      difficulty || null,
+      duration || null,
+      creator || null,
+      Array.isArray(tags) ? tags.map(t => t.trim()) : null,
+      meeting_frequency || null,
+      timezone || null,
+      max_members || null,
+      members || null,
+      is_public !== undefined ? is_public : null,
+      rating || null
+    ];
+
+    const result = await pool.query(insertQuery, values);
+    res.status(201).json(result.rows[0]);
+  } catch (error) {
+    console.error('Database error:', error);
+    res.status(500).json({ error: 'Database error' });
+  }
+}
 export const getCollabs = async (req, res) => {
   // Pagination parameters
   const page = parseInt(req.query.page) > 0 ? parseInt(req.query.page) : 1;
@@ -69,7 +130,7 @@ export const getCollabs = async (req, res) => {
             ARRAY(
               SELECT UNNEST(interests)
               INTERSECT
-              SELECT UNNEST($2::text[])
+              SELECT UNNEST($2::text[]) n
             )
           ) AS match_count
         FROM collab

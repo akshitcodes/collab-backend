@@ -4,7 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import homeRoutes from './src/routes/homeRoutes.js';
 import collabRoutes from './src/routes/collabRoutes.js';
-
+import userRoutes from './src/routes/userRoutes.js';
 // Load environment variables
 dotenv.config();
 
@@ -35,5 +35,5 @@ app.use(express.json({ limit: '1mb' }));
 // Routes
 app.use('/', homeRoutes);
 app.use('/collabs', collabRoutes);
-
+app.use('/users', userRoutes);
 export default app;

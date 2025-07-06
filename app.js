@@ -14,7 +14,12 @@ const app = express();
 app.use(helmet());
 
 // Enable CORS with default or custom options
-app.use(cors());
+app.use(cors(
+    {
+        origin: process.env.CORS_ORIGIN || '*', // Allow 
+        credentials: true, // Allow cookies to be sent with requests
+    }
+));
 
 // Parse incoming JSON requests
 app.use(express.json({ limit: '1mb' }));

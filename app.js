@@ -8,10 +8,10 @@ import userRoutes from './src/routes/userRoutes.js';
 // Load environment variables
 dotenv.config();
 import cookieParser from 'cookie-parser';
-app.use(cookieParser());
 
 
 const app = express();
+app.use(cookieParser());
 
 // Security HTTP headers
 app.use(helmet());

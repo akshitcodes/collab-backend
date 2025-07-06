@@ -7,6 +7,9 @@ import collabRoutes from './src/routes/collabRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
 // Load environment variables
 dotenv.config();
+import cookieParser from 'cookie-parser';
+app.use(cookieParser());
+
 
 const app = express();
 
@@ -15,8 +18,8 @@ app.use(helmet());
 
 // Enable CORS with default or custom options
 app.use(cors(
-    {
-        origin: process.env.CORS_ORIGIN || '*', // Allow 
+    {   origin:'http://localhost:3000', // Change this to your frontend URL
+        // origin: process.env.CORS_ORIGIN || '*', // Allow 
         credentials: true, // Allow cookies to be sent with requests
     }
 ));

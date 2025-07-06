@@ -228,4 +228,17 @@ export const getCollabs = async (req, res) => {
 //     res.status(500).send('Database error');
 //   }
 
-
+export const getUserCreatedCollabs = async (req, res) => {
+    const userId = req.user.id; // Assuming user ID is stored in req.user
+    console.log('Fetching collabs for user:', userId);
+    try {
+        const result = await pool.query(
+            'SELECT * FROM collab WHERE creator_id = $1',
+            [userId]
+        );
+        return res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching user collabs:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}

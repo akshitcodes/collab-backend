@@ -70,6 +70,7 @@ export const loginUser = async (req, res) => {
         const options = {
             httpOnly: true,
             secure: true, // Use secure cookies in production
+            sameSite: "None",
         };
         return res.status(200).cookie('accessToken', accessToken
         ).cookie('refreshToken', refreshToken, options).json({ message: 'Login successful', user });

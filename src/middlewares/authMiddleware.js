@@ -8,7 +8,8 @@ export const authenticateToken = (req, res, next) => {
 
   // Check cookie token
   const cookieToken = req.cookies?.accessToken;
-
+  console.log("Header Token:", headerToken);
+  console.log("Cookie Token:", cookieToken);
   // Pick whichever token is present
   const token = headerToken || cookieToken;
 

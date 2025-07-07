@@ -86,3 +86,11 @@ export const loginUser = async (req, res) => {
     }
 }
 
+export const logoutUser = (req, res) => {
+    console.log('Logging out user');
+    // Clear cookies
+    res.clearCookie('accessToken', { sameSite: "None", secure: true });
+    res.clearCookie('refreshToken', { sameSite: "None", secure: true });
+    return res.status(200).json({ message: 'Logout successful' });
+}
+

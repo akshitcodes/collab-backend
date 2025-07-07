@@ -45,7 +45,7 @@ export const loginUser = async (req, res) => {
     //make email lowercase
 
     const { email, password } = req.body;
-    lowercaseEmail = email ? email.toLowerCase() : null;
+   const lowercaseEmail = email ? email.toLowerCase() : null;
 
     if (!email && !password) {
         return res.status(400).json({ error: 'Email and password are required' });

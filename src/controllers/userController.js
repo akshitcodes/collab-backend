@@ -5,13 +5,14 @@ import { generateAccessToken, generateRefreshToken } from "../Utils/generateJWT.
 export const registerUser = async (req, res) => {
     console.log('Registering user:', req.body);
     const { username, email, password } = req.body;
-
+    // Make email lowercase
+    const lowercaseEmail = email ? email.toLowerCase() : null;
     if (!username || !email || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
     const existingUser = await pool.query(
         'SELECT * FROM users WHERE email = $1 OR username = $2',
-        [email, username]
+        [lowercaseEmail, username]
     );
     if (existingUser.rows.length > 0) {
         return res.status(400).json({ error: 'User already exists' });
@@ -21,7 +22,7 @@ export const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const result = await pool.query(
             'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
-            [username, email, hashedPassword]
+            [username, lowercaseEmail, hashedPassword]
         );
         const newUser = result.rows[0];
          const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user);
@@ -41,7 +42,10 @@ export const generateAccessAndRefreshTokens = async (user) => {
 
 export const loginUser = async (req, res) => {
     console.log('Logging in user:', req.body);
+    //make email lowercase
+
     const { email, password } = req.body;
+    lowercaseEmail = email ? email.toLowerCase() : null;
 
     if (!email && !password) {
         return res.status(400).json({ error: 'Email and password are required' });
@@ -50,7 +54,7 @@ export const loginUser = async (req, res) => {
     try {
         const result = await pool.query(
             'SELECT * FROM users WHERE email = $1',
-            [email]
+            [lowercaseEmail]
         );
         const user = result.rows[0];
 

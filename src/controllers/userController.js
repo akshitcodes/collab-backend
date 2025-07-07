@@ -24,7 +24,8 @@ export const registerUser = async (req, res) => {
             [username, email, hashedPassword]
         );
         const newUser = result.rows[0];
-        return res.status(201).json({ user: newUser });
+         const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user);
+        return res.status(201).json({ user: newUser,accessToken, refreshToken });
     } catch (error) {
         console.error('Error registering user:', error);
         return res.status(500).json({ error: 'Internal server error' });
@@ -74,7 +75,7 @@ export const loginUser = async (req, res) => {
         };
 
         return res.status(200).cookie('accessToken', accessToken, options
-        ).cookie('refreshToken', refreshToken, options).json({ message: 'Login successful', user });
+        ).cookie('refreshToken', refreshToken, options).json({ message: 'Login successful', user ,accessToken, refreshToken });
     } catch (error) {
         console.error('Error logging in user:', error);
         return res.status(500).json({ error: 'Internal server error' });

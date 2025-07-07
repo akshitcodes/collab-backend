@@ -94,3 +94,33 @@ export const logoutUser = (req, res) => {
     return res.status(200).json({ message: 'Logout successful' });
 }
 
+export const joinCollab = async (req, res) => {
+    const userId = req.user.id; // Assuming user ID is stored in req.user
+    const collabId = req.query.collabId; // Assuming collab ID is passed as a URL parameter
+
+    console.log(`User ${userId} joining collab `,req.query.collabId);
+
+    try {
+        // Check if the user is already a member of the collab
+        const existingMember = await pool.query(
+            'SELECT * FROM collab_memberships WHERE user_id = $1 AND collab_id = $2',
+            [userId, collabId]
+        );
+
+        if (existingMember.rows.length > 0) {
+            return res.status(400).json({ error: 'User is already a member of this collab' });
+        }
+
+        // Insert the user into the collab_members table
+        await pool.query(
+            'INSERT INTO collab_memberships (user_id, collab_id,role) VALUES ($1, $2, $3)',
+            [userId, collabId, 'member']
+        );
+
+        return res.status(200).json({ message: 'Successfully joined the collab' });
+    } catch (error) {
+        console.error('Error joining collab:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}
+

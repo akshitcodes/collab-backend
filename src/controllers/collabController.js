@@ -242,3 +242,19 @@ export const getUserCreatedCollabs = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
+export const getUserJoinedCollabs = async (req, res) => {
+    const userId = req.user.id; // Assuming user ID is stored in req.user
+    console.log('Fetching joined collabs for user:', userId);
+    try {
+        const result = await pool.query(
+            `SELECT c.* FROM collab c
+             JOIN collab_memberships cm ON c.id = cm.collab_id
+             WHERE cm.user_id = $1`,
+            [userId]
+        );
+        return res.status(200).json(result.rows);
+    } catch (error) {
+        console.error('Error fetching joined collabs:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+}

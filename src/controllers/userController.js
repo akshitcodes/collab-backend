@@ -96,10 +96,12 @@ export const logoutUser = (req, res) => {
 
 export const joinCollab = async (req, res) => {
     const userId = req.user.id; // Assuming user ID is stored in req.user
-    const collabId = req.query.collabId; // Assuming collab ID is passed as a URL parameter
+    const collabId = req.body?.collabId; // Assuming collab ID is passed as a URL parameter
 
-    console.log(`User ${userId} joining collab `,req.query.collabId);
-
+    console.log(`User ${userId} joining collab `,req.body?.collabId);
+    if (!collabId) {
+        return res.status(400).json({ error: 'Collab ID is required' });
+    }
     try {
         // Check if the user is already a member of the collab
         const existingMember = await pool.query(

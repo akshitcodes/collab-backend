@@ -24,12 +24,14 @@ export const registerUser = async (req, res) => {
             'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
             [username, lowercaseEmail, hashedPassword]
         );
+       
         const newUser = result.rows[0];
-         const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user);
+         const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(newUser);
+        console.log('User registered successfully:', result.rows[0]);
         return res.status(201).json({ user: newUser,accessToken, refreshToken });
     } catch (error) {
         console.error('Error registering user:', error);
-        return res.status(500).json({ error: 'Internal server error' });
+        return res.status(500).json({ error: `Internal server error ${error}` });
     }
 }
 

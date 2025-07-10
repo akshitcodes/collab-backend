@@ -7,12 +7,14 @@ export const registerUser = async (req, res) => {
     const { username, email, password } = req.body;
     // Make email lowercase
     const lowercaseEmail = email ? email.toLowerCase() : null;
-    if (!username || !email || !password) {
+    const lowercaseUsername = username ? username.toLowerCase() : null;
+    if (!lowercaseUsername || !lowercaseEmail || !password) {
         return res.status(400).json({ error: 'All fields are required' });
     }
+    
     const existingUser = await pool.query(
         'SELECT * FROM users WHERE email = $1 OR username = $2',
-        [lowercaseEmail, username]
+        [lowercaseEmail, lowercaseUsername]
     );
     if (existingUser.rows.length > 0) {
         return res.status(400).json({ error: 'User already exists' });
@@ -22,10 +24,10 @@ export const registerUser = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         const result = await pool.query(
             'INSERT INTO users (username, email, password_hash) VALUES ($1, $2, $3) RETURNING *',
-            [username, lowercaseEmail, hashedPassword]
+            [lowercaseUsername, lowercaseEmail, hashedPassword]
         );
-       
-        const newUser = result.rows[0];
+        
+         const newUser = result.rows[0];
          const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(newUser);
         console.log('User registered successfully:', result.rows[0]);
         return res.status(201).json({ user: newUser,accessToken, refreshToken });
@@ -47,15 +49,22 @@ export const loginUser = async (req, res) => {
     //make email lowercase
 
     const { email, password } = req.body;
+    const isEmail = (email) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    };
    const lowercaseEmail = email ? email.toLowerCase() : null;
 
-    if (!email && !password) {
-        return res.status(400).json({ error: 'Email and password are required' });
+    if (!email || !password) {
+        return res.status(400).json({ error: 'Email or password are required' });
     }
 
     try {
+         const query = isEmail
+      ? 'SELECT * FROM users WHERE email = $1'
+      : 'SELECT * FROM users WHERE username = $1';
         const result = await pool.query(
-            'SELECT * FROM users WHERE email = $1',
+            query,
             [lowercaseEmail]
         );
         const user = result.rows[0];

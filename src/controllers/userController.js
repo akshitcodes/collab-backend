@@ -45,57 +45,58 @@ export const generateAccessAndRefreshTokens = async (user) => {
 }
 
 export const loginUser = async (req, res) => {
-    console.log('Logging in user:', req.body);
-    //make email lowercase
+  console.log('Logging in user:', req.body);
 
-    const { email, password } = req.body;
-    const isEmail = (email) => {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    };
-   const lowercaseEmail = email ? email.toLowerCase() : null;
+  const { email, username, password } = req.body;
+  const isEmail = !!email;
+  const identifier = isEmail ? email.toLowerCase() : username?.toLowerCase();
 
-    if (!email || !password) {
-        return res.status(400).json({ error: 'Email or password are required' });
-    }
+  // Validation
+  if ((!email && !username) || !password) {
+    return res.status(400).json({ error: 'Email or username and password are required' });
+  }
 
-    try {
-         const query = isEmail
+  try {
+    const query = isEmail
       ? 'SELECT * FROM users WHERE email = $1'
       : 'SELECT * FROM users WHERE username = $1';
-        const result = await pool.query(
-            query,
-            [lowercaseEmail]
-        );
-        const user = result.rows[0];
 
-        if (!user) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
+    const result = await pool.query(query, [identifier]);
+    const user = result.rows[0];
 
-        // Compare the provided password with the stored hashed password
-        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-        if (!isPasswordValid) {
-            return res.status(401).json({ error: 'Invalid email or password' });
-        }
-        const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user);
-        console.log('Generated tokens:', { accessToken, refreshToken });
-        if (!accessToken || !refreshToken) {
-            return res.status(500).json({ error: 'Failed to generate tokens' });
-        }
-        const options = {
-            // httpOnly: true,
-            secure: true, // Use secure cookies in production
-            sameSite: "None",
-        };
-
-        return res.status(200).cookie('accessToken', accessToken, options
-        ).cookie('refreshToken', refreshToken, options).json({ message: 'Login successful', user ,accessToken, refreshToken });
-    } catch (error) {
-        console.error('Error logging in user:', error);
-        return res.status(500).json({ error: 'Internal server error' });
+    if (!user) {
+      return res.status(401).json({ error: 'Invalid email/username or password' });
     }
-}
+    console.log('User found:', user);
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: 'Invalid email/username or password' });
+    }
+
+    const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(user);
+    console.log('Generated tokens:', { accessToken, refreshToken });
+
+    if (!accessToken || !refreshToken) {
+      return res.status(500).json({ error: 'Failed to generate tokens' });
+    }
+
+    const options = {
+      httpOnly: true,      // Strongly recommended for security
+      secure: true,        // Only send cookie over HTTPS
+      sameSite: "None",    // Required for cross-origin cookies
+    };
+
+    return res
+      .status(200)
+      .cookie('accessToken', accessToken, options)
+      .cookie('refreshToken', refreshToken, options)
+      .json({ message: 'Login successful', user, accessToken, refreshToken });
+
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 export const logoutUser = (req, res) => {
     console.log('Logging out user');

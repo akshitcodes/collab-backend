@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import homeRoutes from './src/routes/homeRoutes.js';
 import collabRoutes from './src/routes/collabRoutes.js';
 import userRoutes from './src/routes/userRoutes.js';
+import morgan from 'morgan';
 // Load environment variables
 dotenv.config();
 import cookieParser from 'cookie-parser';
@@ -15,7 +16,14 @@ app.use(cookieParser());
 
 // Security HTTP headers
 app.use(helmet());
+morgan.token('req-headers', function (req) {
+    return JSON.stringify(req.headers);
+});
 
+// Custom token for body
+morgan.token('req-body', function (req) {
+    return JSON.stringify(req.body);
+});
 // Enable CORS with default or custom options
 app.use(cors(
     {    // Change this to your frontend URL
@@ -23,7 +31,7 @@ app.use(cors(
         credentials: true, // Allow cookies to be sent with requests
     }
 ));
-
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-headers :req-body'));
 // Parse incoming JSON requests
 app.use(express.json({ limit: '1mb' }));
 

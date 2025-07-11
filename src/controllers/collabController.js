@@ -258,3 +258,34 @@ export const getUserJoinedCollabs = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
+export const deleteCollab=async (req,res) => {
+  const {collab_id}=req.params;
+    console.log('Deleting collab with ID:', collab_id);
+    // Validate collab_id
+    if (!collab_id || isNaN(collab_id)) {
+        return res.status(400).json({ error: 'Invalid collab ID' });
+    }
+  
+
+    //check if collab is valid
+    const collabExist=await pool.query('SELECT * FROM collab WHERE id=$1',
+      [collab_id]
+    )
+    if(!(collabExist.rowCount>0))  return res.status(400).json({error: 'collab doesnt exist'});
+    //check if user is owner of collab
+    const userId = req.user.id; // Assuming user ID is stored in req.user
+    const isOwner = await pool.query(
+      'SELECT * FROM collab WHERE id=$1 AND creator_id=$2',
+      [collab_id, userId]
+    );
+    if (isOwner.rowCount === 0) {
+        return res.status(403).json({ error: 'You are not authorized to delete this collab' });
+    }
+    const isCollabdeleted=await pool.query('DELETE FROM collab WHERE id=$1',
+      [collab_id]);
+    if(isCollabdeleted.rowCount>0){
+        return res.status(200).json({message: 'collab deleted successfully'});
+    }else{
+        return res.status(500).json({error: 'Failed to delete collab'});
+    }
+}

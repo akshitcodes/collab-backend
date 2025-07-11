@@ -1,6 +1,7 @@
 import { pool, query } from "../DB/db.js";
 import bcrypt from 'bcrypt';
 import { generateAccessToken, generateRefreshToken } from "../Utils/generateJWT.js";
+import { sendMail } from "../Utils/mail.js";
 
 export const registerUser = async (req, res) => {
     console.log('Registering user:', req.body);
@@ -30,6 +31,16 @@ export const registerUser = async (req, res) => {
          const newUser = result.rows[0];
          const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(newUser);
         console.log('User registered successfully:', result.rows[0]);
+        
+        sendMail({
+            to: lowercaseEmail,
+            type: 'welcome',
+            data: [newUser.username],
+        }).then(() => {
+            console.log('Welcome email sent successfully');
+        }).catch((error) => {
+            console.error('Error sending welcome email:', error);
+        });
         return res.status(201).json({ user: newUser,accessToken, refreshToken });
     } catch (error) {
         console.error('Error registering user:', error);
@@ -46,7 +57,7 @@ export const generateAccessAndRefreshTokens = async (user) => {
 
 export const loginUser = async (req, res) => {
   console.log('Logging in user:', req.body);
-
+ 
   const { email, username, password } = req.body;
   const isEmail = !!email;
   const identifier = isEmail ? email.toLowerCase() : username?.toLowerCase();

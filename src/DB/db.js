@@ -14,10 +14,18 @@ export const pool = new Pool({
     },
 });
 
+// pool.on('connect', (client) => {
+//   client.query("SET TIME ZONE 'Asia/Kolkata';");
+  
+// });
+
+
+
 // Mongoose-like method
 export const connectDB = async () => {
     try {
         const res = await pool.query('SELECT NOW()');
+
         console.log('✅ PostgreSQL connected at', res.rows[0].now);
     } catch (err) {
         console.error('❌ Failed to connect to PostgreSQL:', err);

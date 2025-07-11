@@ -12,18 +12,15 @@ import cookieParser from 'cookie-parser';
 
 
 const app = express();
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 app.use(cookieParser());
 
 // Security HTTP headers
 app.use(helmet());
-morgan.token('req-headers', function (req) {
-    return JSON.stringify(req.headers);
-});
 
-// Custom token for body
-morgan.token('req-body', function (req) {
-    return JSON.stringify(req.body);
-});
+
+
 // Enable CORS with default or custom options
 app.use(cors(
     {    // Change this to your frontend URL
@@ -31,9 +28,37 @@ app.use(cors(
         credentials: true, // Allow cookies to be sent with requests
     }
 ));
-app.use(morgan(':method :url :status :res[content-length] - :response-time ms :req-headers :req-body'));
+
+ app.use((req, res, next) => {
+  const oldSend = res.send;
+  res.send = function (body) {
+    res.locals.body = body; // Capture response body
+    return oldSend.call(this, body);
+  };
+  next();
+});
+morgan.token('req-headers', (req) => JSON.stringify(req.headers));
+morgan.token('req-body', (req) => JSON.stringify(req.body));
+morgan.token('res-headers', (req, res) => JSON.stringify(res.getHeaders()));
+morgan.token('res-body', (req, res) => {
+  const body = res.locals.body;
+  // Optional: truncate if large
+  return typeof body === 'object' ? JSON.stringify(body) : String(body);
+});
+
+
+app.use(
+  morgan(
+    ':method :url :status :res[content-length] - :response-time ms\n' +
+      'Request Headers: :req-headers\n' +
+      'Request Body: :req-body\n' +
+      'Response Headers: :res-headers\n' +
+      'Response Body: :res-body\n'
+  )
+);
+
 // Parse incoming JSON requests
-app.use(express.json({ limit: '1mb' }));
+
 
 // Prevent HTTP Parameter Pollution
 // (optional, install hpp if needed)

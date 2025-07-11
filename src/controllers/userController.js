@@ -148,4 +148,36 @@ export const joinCollab = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 }
+export const leaveCollab = async (req, res) => {
+    const userId = req.user.id; // Assuming user ID is stored in req.user
+    const collabId = req.params.collab_id; // Assuming collab ID is passed as a URL parameter
+    console.log(`User ${userId} leaving collab with ID: ${collabId}`);
+    if (!collabId) {
+        return res.status(400).json({ error: 'Collab ID is required' });
+    }
+    try {
+        // Check if the user is a member of the collab
+        const existingMember = await pool.query(
+            'SELECT * FROM collab_memberships WHERE user_id = $1 AND collab_id = $2',
+            [userId, collabId]
+        );
 
+        if (existingMember.rows.length === 0) {
+            return res.status(400).json({ error: 'User is not a member of this collab' });
+        }
+
+        // Delete the user from the collab_members table
+        const result = await pool.query(
+            'DELETE FROM collab_memberships WHERE user_id = $1 AND collab_id = $2',
+            [userId, collabId]
+        );
+        if (result.rowCount === 0) {
+            return res.status(400).json({ error: 'Failed to leave the collab' });
+        }
+
+        return res.status(200).json({ message: 'Successfully left the collab' });
+    } catch (error) {
+        console.error('Error leaving collab:', error);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+    }

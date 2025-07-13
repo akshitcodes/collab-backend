@@ -49,14 +49,11 @@ morgan.token('res-body', (req, res) => {
 
 app.use(
   morgan(
-    ':method :url :status :res[content-length] - :response-time ms\n' +
-      'Request Headers: :req-headers\n' +
-      'Request Body: :req-body\n' +
-      'Response Headers: :res-headers\n' +
-      'Response Body: :res-body\n'
+    ':method :url :status :res[content-length] - :response-time ms | ' +
+      'Request Headers: :req-headers  Request Body: :req-body\n Response Body: :res-body\n'
   )
 );
-
+ // 'Response Headers: :res-headers\n' +
 // Parse incoming JSON requests
 
 

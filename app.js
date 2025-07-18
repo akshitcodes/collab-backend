@@ -9,6 +9,7 @@ import morgan from 'morgan';
 // Load environment variables
 dotenv.config();
 import cookieParser from 'cookie-parser';
+import passport from 'passport';
 
 
 const app = express();
@@ -53,6 +54,7 @@ app.use(
       'Request Headers: :req-headers  Request Body: :req-body\n Response Body: :res-body\n'
   )
 );
+app.use(passport.initialize());
  // 'Response Headers: :res-headers\n' +
 // Parse incoming JSON requests
 

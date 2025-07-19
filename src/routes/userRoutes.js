@@ -24,9 +24,10 @@ router.get('/auth/google/callback',
     session: false,
     failureRedirect: '/login'
   }),
-  (req, res) => {
+ async (req, res) => {
     // At this point, `req.user` should be available
-    const {accessToken,refreshToken}=generateAccessAndRefreshTokens(req.user);
+    console.log('Google authentication successful:', req.user);
+    const {accessToken,refreshToken}=await generateAccessAndRefreshTokens(req.user);
     res.cookie('accessToken',accessToken,{httpOnly:true,secure:true,maxAge:1000*60*60*24*30});
     res.cookie('refreshToken',refreshToken,{httpOnly:true,secure:true,maxAge:1000*60*60*24*30});
     res.redirect(`https://collablearn.in/login/google?accessToken=${accessToken}`);

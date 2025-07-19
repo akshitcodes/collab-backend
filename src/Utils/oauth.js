@@ -30,7 +30,7 @@ passport.use(new GoogleStrategy({
   callbackURL: process.env.GOOGLE_CALLBACK_URL
 },handleGoogleLogin));
 
-const generateUniqueUsername = (async (baseName) => {
+const generateUniqueUsername = async (baseName) => {
   let username, exists;
 
   do {
@@ -44,4 +44,4 @@ const generateUniqueUsername = (async (baseName) => {
   } while (exists);
   console.log("Unique username generated:", username);
   return username;
-})();
+};

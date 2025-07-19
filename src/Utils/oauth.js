@@ -14,10 +14,11 @@ const handleGoogleLogin=async (accessToken, refreshToken, profile, done) => {
     const newUser=await pool.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [profile.emails[0].value]);
     return done(null, newUser.rows[0]);
   }
+  return done(null, user.rows[0]);
   }catch(error){
     return done(error);
   }
-  return done(null, user.rows[0]);
+  
   
 }
 passport.use(new GoogleStrategy({

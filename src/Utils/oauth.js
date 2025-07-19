@@ -4,6 +4,22 @@ import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { pool } from '../DB/db.js';
 
 console.log("Registering Google OAuth strategy");
+const generateUniqueUsername = async (baseName) => {
+  let username, exists;
+
+  do {
+    const suffix = Math.floor(1000 + Math.random() * 9000);
+    username = `${baseName}${suffix}`.toLowerCase();
+    const result = await pool.query(
+      'SELECT 1 FROM users WHERE username = $1 LIMIT 1',
+      [username]
+    );
+    exists = result.rowCount > 0;
+  } while (exists);
+  console.log("Unique username generated:", username);
+  return username;
+};
+
 const handleGoogleLogin=async (accessToken, refreshToken, profile, done) => {
   // Save user to DB, etc.
   try{
@@ -30,18 +46,4 @@ passport.use(new GoogleStrategy({
   callbackURL: process.env.GOOGLE_CALLBACK_URL
 },handleGoogleLogin));
 
-const generateUniqueUsername = async (baseName) => {
-  let username, exists;
 
-  do {
-    const suffix = Math.floor(1000 + Math.random() * 9000);
-    username = `${baseName}${suffix}`.toLowerCase();
-    const result = await pool.query(
-      'SELECT 1 FROM users WHERE username = $1 LIMIT 1',
-      [username]
-    );
-    exists = result.rowCount > 0;
-  } while (exists);
-  console.log("Unique username generated:", username);
-  return username;
-};

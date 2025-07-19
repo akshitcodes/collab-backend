@@ -13,11 +13,22 @@ router.get('/auth/google', passport.authenticate('google', {
   scope: ['profile', 'email']
 }));
 
+// router.get('/auth/google/callback',
+//   passport.authenticate('google',{ session: false }, { failureRedirect: '/login' }),
+//   (req, res) => {
+//     res.redirect('https://collablearn.in/get-started');
+//   }
+// );
 router.get('/auth/google/callback',
-  passport.authenticate('google',{ session: false }, { failureRedirect: '/login' }),
+  passport.authenticate('google', {
+    session: false,
+    failureRedirect: '/login'
+  }),
   (req, res) => {
+    // At this point, `req.user` should be available
     res.redirect('https://collablearn.in/get-started');
   }
 );
+
 
 export default router;  

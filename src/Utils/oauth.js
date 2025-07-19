@@ -10,7 +10,7 @@ const handleGoogleLogin=async (accessToken, refreshToken, profile, done) => {
     const user=await pool.query('SELECT * FROM users WHERE email = $1', [profile.emails[0].value]);
     console.log('Google profile:', profile);
   if(user.rows.length===0){
-    const newUser=pool.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [profile.emails[0].value]);
+    const newUser=await pool.query('INSERT INTO users (email) VALUES ($1) RETURNING *', [profile.emails[0].value]);
     return done(null, newUser);
   }
   }catch(error){

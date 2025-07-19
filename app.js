@@ -9,8 +9,8 @@ import morgan from 'morgan';
 // Load environment variables
 dotenv.config();
 import cookieParser from 'cookie-parser';
-import passport from 'passport';
-
+import passport, { Passport } from 'passport';
+import './src/Utils/oauth.js'; // Ensure this imports the Google OAuth setup
 
 const app = express();
 app.use(express.json({ limit: '1mb' }));

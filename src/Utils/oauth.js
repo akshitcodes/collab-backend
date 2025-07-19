@@ -1,7 +1,7 @@
 
 import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { pool } from '../DB/db';
+import { pool } from '../DB/db.js';
 
 console.log("Registering Google OAuth strategy");
 const handleGoogleLogin=async (accessToken, refreshToken, profile, done) => {

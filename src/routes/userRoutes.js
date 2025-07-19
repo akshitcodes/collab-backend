@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginUser, logoutUser, registerUser,joinCollab, leaveCollab } from "../controllers/userController.js";
+import { loginUser, logoutUser, registerUser,joinCollab, leaveCollab, generateAccessAndRefreshTokens } from "../controllers/userController.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import passport from "passport";
 
@@ -26,7 +26,10 @@ router.get('/auth/google/callback',
   }),
   (req, res) => {
     // At this point, `req.user` should be available
-    res.redirect('https://collablearn.in/get-started');
+    const {accessToken,refreshToken}=generateAccessAndRefreshTokens(req.user);
+    res.cookie('accessToken',accessToken,{httpOnly:true,secure:true,maxAge:1000*60*60*24*30});
+    res.cookie('refreshToken',refreshToken,{httpOnly:true,secure:true,maxAge:1000*60*60*24*30});
+    res.redirect(`https://collablearn.in/login/google?accessToken=${accessToken}`);
   }
 );
 

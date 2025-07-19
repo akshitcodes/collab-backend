@@ -14,7 +14,7 @@ router.get('/auth/google', passport.authenticate('google', {
 }));
 
 router.get('/auth/google/callback',
-  passport.authenticate('google', { failureRedirect: '/login' }),
+  passport.authenticate('google',{ session: false }, { failureRedirect: '/login' }),
   (req, res) => {
     res.redirect('https://collablearn.in/get-started');
   }

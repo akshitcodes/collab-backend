@@ -22,7 +22,7 @@ router.get('/auth/google', passport.authenticate('google', {
 router.get('/auth/google/callback',
   passport.authenticate('google', {
     session: false,
-    failureRedirect: '/login'
+    failureRedirect: 'https://collablearn.in/login'
   }),
  async (req, res) => {
     // At this point, `req.user` should be available

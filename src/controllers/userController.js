@@ -181,3 +181,14 @@ export const leaveCollab = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
     }
+
+    export const getUserDetails = async (req, res) => { 
+        const userId = req.user?.id;
+        try {
+            const user = await pool.query('SELECT * FROM users WHERE id = $1', [userId]);
+            return res.status(200).json(user.rows[0]);
+        } catch (error) {
+            console.error('Error getting user details:', error);
+            return res.status(500).json({ error: 'Internal server error' });
+        }
+    }

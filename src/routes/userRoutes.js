@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { loginUser, logoutUser, registerUser,joinCollab, leaveCollab, generateAccessAndRefreshTokens } from "../controllers/userController.js";
+import { loginUser, logoutUser, registerUser,joinCollab, leaveCollab, generateAccessAndRefreshTokens, getUserDetails } from "../controllers/userController.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import passport from "passport";
 
@@ -34,5 +34,5 @@ router.get('/auth/google/callback',
   }
 );
 
-
+router.get('/user-details',authenticateToken,getUserDetails);
 export default router;  

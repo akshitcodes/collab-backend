@@ -30,7 +30,7 @@ const handleGoogleLogin=async (accessToken, refreshToken, profile, done) => {
   if(user.rows.length===0){
     const username=profile.displayName.split(' ').join('').toLowerCase();
     const uniqueUsername=await generateUniqueUsername(username);
-    const newUser=await pool.query('INSERT INTO users (email,username) VALUES ($1,$2) RETURNING *', [profile.emails[0].value,uniqueUsername]);
+    const newUser=await pool.query('INSERT INTO users (email,username,auth_provider) VALUES ($1,$2,$3) RETURNING *', [profile.emails[0].value,uniqueUsername,'google']);
     return done(null, newUser.rows[0]);
   }
   return done(null, user.rows[0]);
